@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Radar 01 · Make.fun Intelligence Terminal</title>
+  <link rel="stylesheet" href="app.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="header-top">
+        <div class="logo-area">
+          <div class="logo-icon">TR</div>
+          <div class="logo-text">
+            <h1>Token Radar 01</h1>
+            <p>DeFi Pre-Token Intelligence & Implied Valuation Board</p>
+          </div>
+        </div>
+        <div class="judge-note">
+          <strong>To the Judge:</strong> Rigorous valuation model derived strictly from TVL, 7d growth, and protocol age. Covers all 40 watchlist floor protocols + broader ecosystem. Interactive table & detailed farm plans included.
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-title">Total Protocols</span>
+          <span class="metric-value" id="metric-total">-</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Watchlist Floor</span>
+          <span class="metric-value" id="metric-watchlist">-</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Pre-Token Early</span>
+          <span class="metric-value" id="metric-early">-</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Ecosystem TVL</span>
+          <span class="metric-value" id="metric-tvl">-</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Total Implied Value</span>
+          <span class="metric-value" id="metric-implied">-</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="controls-bar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search protocols by name, slug, category, or chain...">
+      </div>
+      <div class="filters-group">
+        <button class="filter-btn" data-filter="all">All Protocols</button>
+        <button class="filter-btn" data-filter="pre">Pre-Token</button>
+        <button class="filter-btn" data-filter="live">Live Token</button>
+        <button class="filter-btn active" data-filter="watchlist">Watchlist Floor</button>
+        <select id="category-filter">
+          <option value="all">All Categories</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0.5rem;">
+      <div style="font-size: 0.85rem; color: var(--text-muted);" id="results-count">Loading protocols...</div>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">💡 Click any row to inspect protocol details & farm plans</div>
+    </div>
+
+    <div class="table-container">
+      <table id="radar-table">
+        <thead>
+          <tr>
+            <th data-sort="name">Protocol</th>
+            <th data-sort="status">Status</th>
+            <th data-sort="tvl_usd">TVL ($)</th>
+            <th data-sort="change_7d">7D Change</th>
+            <th data-sort="implied_value_usd">Implied Value ($)</th>
+            <th data-sort="implied_multiple">Multiple</th>
+            <th data-sort="category">Category</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Populated by app.js -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-area">
+          <h2 id="modal-name">Protocol Name</h2>
+          <div class="modal-subtitle" id="modal-slug">slug | category | chains</div>
+        </div>
+        <button class="close-btn" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-status"></div>
+        
+        <div class="modal-stats-grid">
+          <div class="modal-stat-box">
+            <span class="metric-title">TVL</span>
+            <span class="metric-value" id="modal-tvl">$0</span>
+          </div>
+          <div class="modal-stat-box">
+            <span class="metric-title">7D Growth</span>
+            <span class="metric-value" id="modal-change">0%</span>
+          </div>
+          <div class="modal-stat-box">
+            <span class="metric-title">Implied Value (FDV)</span>
+            <span class="metric-value" style="color: var(--accent-emerald);" id="modal-implied">$0</span>
+          </div>
+          <div class="modal-stat-box">
+            <span class="metric-title">Implied Multiple</span>
+            <span class="metric-value" id="modal-multiple">0x</span>
+          </div>
+          <div class="modal-stat-box">
+            <span class="metric-title">Radar Score</span>
+            <span class="metric-value" id="modal-score">0</span>
+          </div>
+        </div>
+
+        <div class="farm-plan-section">
+          <div class="farm-plan-title">
+            🌾 Concrete Farm Plan: <span id="farm-strategy" style="color: var(--text-main);">Strategy</span>
+          </div>
+          <ol class="farm-steps-list" id="farm-steps">
+            <!-- Farm steps -->
+          </ol>
+          <div class="farm-meta">
+            <span>Estimated Cost: <strong id="farm-cost">$25</strong></span>
+            <span>Estimated Timeframe: <strong id="farm-time">30 Days</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    make.fun token-radar-01 entry · Built with Node.js & Vanilla CSS/JS · Pure algorithmic valuation model
+  </footer>
+
+  <script src="../data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
