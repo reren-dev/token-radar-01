@@ -1,11 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { parseSnapshot, buildRadar, boardIssue, dataScript } from './lib/model.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 function parseArgs() {
   const args = process.argv.slice(2);
-  let inputPath = '/home/hatch/workspace/makefun/token-radar-01-kit/token-radar-01-kit/input/snapshot.json';
+  const localFallback = '/home/hatch/workspace/makefun/token-radar-01-kit/token-radar-01-kit/input/snapshot.json';
+  let inputPath = process.env.MAKEFUN_INPUT_DIR
+    ? path.join(process.env.MAKEFUN_INPUT_DIR, 'snapshot.json')
+    : '';
+  if (!inputPath && fs.existsSync(localFallback)) {
+    inputPath = localFallback;
+  }
   let outputPath = process.env.MAKEFUN_OUTPUT_DIR || '/output';
 
   for (let i = 0; i < args.length; i++) {
@@ -62,7 +71,7 @@ async function main() {
     fs.mkdirSync(finalOut, { recursive: true });
     fs.accessSync(finalOut, fs.constants.W_OK);
   } catch {
-    finalOut = path.resolve('out');
+    finalOut = path.join(__dirname, 'out');
     fs.mkdirSync(finalOut, { recursive: true });
   }
 
@@ -75,13 +84,13 @@ async function main() {
   fs.writeFileSync(dataJsPath, dataScript(radar), 'utf8');
 
   // 3. Copy dashboard/ and screenshots/
-  const dashboardSrc = path.resolve('dashboard');
+  const dashboardSrc = path.join(__dirname, 'dashboard');
   const dashboardDest = path.join(finalOut, 'dashboard');
   if (fs.existsSync(dashboardSrc)) {
     copyRecursive(dashboardSrc, dashboardDest);
   }
 
-  const screenshotsSrc = path.resolve('screenshots');
+  const screenshotsSrc = path.join(__dirname, 'screenshots');
   const screenshotsDest = path.join(finalOut, 'screenshots');
   if (fs.existsSync(screenshotsSrc)) {
     copyRecursive(screenshotsSrc, screenshotsDest);
